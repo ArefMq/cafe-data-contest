@@ -103,4 +103,5 @@ ENV/
 # Other data
 *~
 *.pyc
-
+data/test_data.csv
+data/train_data.csv
