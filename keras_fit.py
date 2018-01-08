@@ -11,7 +11,7 @@ import numpy as np
 import pandas
 import time
 
-EPOCH = 5
+EPOCH = 700
 DATA_OVERWRITE = True
 SEED = None
 
@@ -51,8 +51,8 @@ model.compile(loss=root_mean_squared_error, optimizer='rmsprop')
 # model.compile(optimizer="rmsprop", loss=root_mean_squared_error,
 #               metrics=["accuracy", mean_pred])
 
-model.fit(train_in, train_out, batch_size=128, nb_epoch=EPOCH)
-loss_and_metrics = model.evaluate(train_in, train_out, batch_size=128)
+model.fit(train_in, train_out, batch_size=32, nb_epoch=EPOCH)
+loss_and_metrics = model.evaluate(train_in, train_out, batch_size=32)
 result = model.predict_proba(prediction_in)
 result = np.floor(unwrap_result(result, prediction_in).astype(float))
 

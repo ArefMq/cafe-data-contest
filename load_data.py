@@ -71,21 +71,27 @@ def fix_lat_long_data(data):
     data[lng_ind, LONGITUDE] = 0
 
 
-def get_outliers_filter(data, output):
-    to_remove = []
+def get_outliars_filter(data, output):
+    to_remove = np.array([])
     for ct in np.unique(data[:, CITY]):
         inds = np.where(data[:, CITY] == ct)
         pcs = output[inds]
         pcs = np.sort(pcs)
 
-        lb = len(pcs) * 0.05
-        ub = len(pcs) * 0.95
+        lb = int(len(pcs) * 0.01)
+        ub = int(len(pcs) * 0.99)
 
-        to_remove += np.where(np.logical_and(np.logical_or(output > ub, output < lb), data[:, CITY] == ct))
+        mid = np.where(np.logical_and(
+            np.logical_or(
+                output > pcs[ub], output < pcs[lb]),
+            data[:, CITY] == ct))[0]
+
+        to_remove = np.concatenate((to_remove, mid))
+    return to_remove.astype(int)
 
 
 def load_all():
-    filter = [TITLE, DESC, CREATED_DATA]
+    filter = [PK, TITLE, DESC, CREATED_DATA]
     [train_in, train_out] = load_data('train', True, filter)
     print '------------------------------------'
     fix_bedrooms(train_in)
@@ -97,6 +103,11 @@ def load_all():
     normalize_data(train_in)
     fill_city_centers(train_in)
     fix_lat_long_data(train_in)
+    out_liars = get_outliars_filter(train_in, train_out)
+
+    print 'remove out liars'
+    train_in = np.delete(train_in, out_liars, axis=0)
+    train_out = np.delete(train_out, out_liars, axis=0)
 
     prediction_in = load_data('test', False, filter)
     print '------------------------------------'
